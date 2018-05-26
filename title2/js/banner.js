@@ -1,0 +1,101 @@
+//轮播图
++function($){
+	$.fn.taBanner=function(selector){
+		new Banner(selector);
+	}
+	function Banner(selector){
+		this.ele=$(selector);
+		if(!this.ele) return;
+		this.prev_btn=$("#page-prev");
+		this.next_btn=$("#page-next");
+		this.page_btn=$(".page-span");
+		this.init();
+	}
+	Banner.prototype={
+		constructor:Banner,
+		init(){
+			this.prev=0;
+			this.index=0;
+			this.timer=null;
+			this.prev_btn.on("click",$.proxy(function(){
+				clearInterval(this.timer);
+				this.prev_page();
+				this.timer=setInterval(function(){this.next_page()}.bind(this),4000);
+			},this));
+			this.next_btn.on("click",$.proxy(function(){
+				clearInterval(this.timer);
+				this.next_page();
+				this.timer=setInterval(function(){this.next_page()}.bind(this),4000);
+			},this));
+			this.page_btn.on("click",$.proxy(function(){
+				clearInterval(this.timer);
+				this.page_span(event);
+				this.timer=setInterval(function(){this.next_page()}.bind(this),4000);
+			},this));
+			this.timer=setInterval(function(){this.next_page()}.bind(this),4000);
+		},
+		prev_page(){
+			if(this.index==0){
+				this.index=this.ele.length-1;
+			}else{
+				this.index--;
+			}
+			$(this.ele)
+			.css("z-index",0)
+			.eq(this.prev).css({"left":0,"z-index":2})
+			.stop()
+			.animate({left:1140},"linear")
+			.end()
+			.eq(this.index).css({
+				"left":"-1140px",
+				"z-index":2
+			})
+			.stop()
+			.animate({left:0},"linear");
+			$(this.page_btn)
+			.removeClass("page-span-active")
+			.eq(this.index).addClass("page-span-active");
+			this.prev=this.index;		
+		},
+		next_page(){
+			if(this.index==this.ele.length-1){
+				this.index=0;
+			}else{
+				this.index++;
+			}
+			$(this.ele)
+			.css("z-index",0)
+			.eq(this.prev).css({"left":0,"z-index":2})
+			.stop()
+			.animate({left:-1140},"linear")
+			.end()
+			.eq(this.index).css({
+				"left":"1140px",
+				"z-index":2
+			})
+			.stop()
+			.animate({left:0},"linear");
+			$(this.page_btn)
+			.removeClass("page-span-active")
+			.eq(this.index).addClass("page-span-active");
+			this.prev=this.index;
+		},
+		page_span(event){
+			this.prev=this.index;
+			this.index=$(event.target).index();
+			if(this.index>this.prev){
+				this.index=$(event.target).index()-1;
+				this.next_page();
+			}else{
+				this.index=$(event.target).index()+1;
+				this.prev_page();
+			}
+		
+		}
+	}
+	
+}(jQuery)
+$(function(){
+		$(".banner")
+		.taBanner(".banner-img");
+})
